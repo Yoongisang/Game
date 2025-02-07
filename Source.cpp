@@ -102,7 +102,14 @@ char character[2][16][16] =
 	},
 };
 #pragma endregion
+
+#pragma region MAP
+void PrintMap();
+char Map[100][100];
+#pragma endregion
+
 #pragma region Struct
+
 struct Obj
 {
 	int x;
@@ -285,6 +292,13 @@ void PrintCharactor()
 	}
 
 }
+#pragma endregion
+#pragma region MAP
+void PrintMap()
+{
+
+}
+char Map[100][100];
 #pragma endregion
 
 
