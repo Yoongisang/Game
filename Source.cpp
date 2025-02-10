@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h> 
 
 #pragma region define
 #define speed 3
@@ -55,9 +56,9 @@ void SetPosition(int x, int y);
 void setColor(int color);
 #pragma endregion
 
-#pragma region Charactor
+#pragma region OBJ
 
-void PrintCharactor();
+void PrintOBJ();
 
 char character[2][16][16] =
 {
@@ -101,14 +102,30 @@ char character[2][16][16] =
 		{0,0,5,5,5,5,0,0,0,0,5,5,5,5,0,0}
 	},
 };
-#pragma endregion
 
-#pragma region MAP
-void PrintOBJ();
-char OBJ[100][100] =
+char Enemy[1][16][16] =
 {
-	
+	{
+
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+		{0,0,0,0,1,2,2,2,2,2,2,1,0,0,0,0},
+		{0,0,0,0,2,2,2,2,2,2,2,2,2,0,0,0},
+		{0,0,0,2,2,2,2,2,2,2,2,2,2,2,0,0},
+		{0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0},
+		{0,0,3,3,3,3,3,3,3,3,3,3,3,3,0,0},
+		{0,0,3,3,3,3,3,3,3,3,3,3,3,3,0,0},
+		{0,0,4,4,4,4,4,4,4,4,4,4,4,4,0,0},
+		{0,0,4,4,4,4,4,4,4,4,4,4,4,4,0,0},
+		{0,0,4,4,4,4,4,4,4,4,4,4,4,4,0,0},
+		{0,0,4,4,4,4,4,4,4,4,4,4,4,4,0,0},
+		{0,0,5,5,5,5,0,0,0,0,5,5,5,5,0,0},
+		{0,0,5,5,5,5,0,0,0,0,5,5,5,5,0,0}
+	},
 };
+
 #pragma endregion
 
 #pragma region Struct
@@ -117,6 +134,7 @@ struct Obj
 {
 	int x;
 	int y;
+	int HP;
 	Dir dir;
 	Color color;
 	char (*shape)[16][16];
@@ -125,9 +143,11 @@ struct Obj
 #pragma region Main
 int main()
 {
+
+	
 	InitBuffer();
 
-	PrintCharactor();
+	PrintOBJ();
 
 	return 0;
 }
@@ -222,7 +242,7 @@ void setColor(int color)
 
 #pragma endregion
 #pragma region Charactor
-void PrintCharactor()
+void PrintOBJ()
 {
 
 	Obj player;
@@ -231,6 +251,16 @@ void PrintCharactor()
 	player.dir = RIGHT;
 	player.color = WHITE;
 	player.shape = character;
+	player.HP = 10;
+	
+
+	Obj enemy;
+	enemy.x = 125;
+	enemy.y = 20;
+	enemy.color = WHITE;
+	enemy.shape = Enemy;
+	enemy.HP = 5;
+
 
 	while (true)
 	{
@@ -261,6 +291,10 @@ void PrintCharactor()
 
 		ClearBuffer();
 
+		char hpText[50];
+		sprintf_s(hpText, "플레이어 HP: %d", player.HP);
+		WriteBuffer(20, 20, hpText, WHITE);
+
 		for (int y = 0; y < 16; y++)
 		{
 			for (int x = 0; x < 16; x++)
@@ -289,6 +323,45 @@ void PrintCharactor()
 
 			}
 		}
+		if (player.x < enemy.x +16 && player.x + 16 > enemy.x && player.y < enemy.y +16 && player.y + 16 > enemy.y)
+		{
+			double playerCenterX = player.x + 8;
+			double playerCenterY = player.y + 8;
+			double enemyCenterX = enemy.x + 8;
+			double enemyCenterY = enemy.y + 8;
+
+			double dx = playerCenterX - enemyCenterX;
+			double dy = playerCenterY - enemyCenterY;
+			double distance = sqrt(dx * dx + dy * dy);
+
+			player.x += (int)((dx / distance) * 10);
+			player.y += (int)((dy / distance) * 10);
+
+			enemy.x -= (int)((dx / distance) * 10);
+			enemy.y -= (int)((dy / distance) * 10);
+		}
+		for (int y = 0; y < 16; y++)
+		{
+			for (int x = 0; x < 16; x++)
+			{
+
+				switch (Enemy[0][y][x])
+				{
+				case 3:
+					WriteBuffer(enemy.x + x, enemy.y + y, "■", LIGHTBLUE);
+					break;
+				case 4:
+					WriteBuffer(enemy.x + x, enemy.y + y, "■", RED);
+					break;
+				case 5:
+					WriteBuffer(enemy.x + x, enemy.y + y, "■", RED);
+					break;
+				default:
+					break;
+				}
+
+			}
+		}
 		FlipBuffer();
 
 		Sleep(50);
@@ -296,11 +369,4 @@ void PrintCharactor()
 
 }
 #pragma endregion
-#pragma region MAP
-void PrintOBJ()
-{
-
-};
-#pragma endregion
-
 
