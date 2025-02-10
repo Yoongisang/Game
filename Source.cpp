@@ -105,7 +105,7 @@ char character[2][16][16] =
 
 #pragma region MAP
 void PrintMap();
-char Map[100][100];
+
 #pragma endregion
 
 #pragma region Struct
