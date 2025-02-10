@@ -104,8 +104,11 @@ char character[2][16][16] =
 #pragma endregion
 
 #pragma region MAP
-void PrintMap();
-
+void PrintOBJ();
+char OBJ[100][100] =
+{
+	
+};
 #pragma endregion
 
 #pragma region Struct
@@ -294,11 +297,10 @@ void PrintCharactor()
 }
 #pragma endregion
 #pragma region MAP
-void PrintMap()
+void PrintOBJ()
 {
 
-}
-char Map[100][100];
+};
 #pragma endregion
 
 
