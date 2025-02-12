@@ -60,7 +60,14 @@ void setColor(int color);
 #pragma region OBJ
 
 void PrintOBJ();
-
+char HPICON[5][5] =
+{
+	{0, 1, 0, 1, 0},
+	{1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1},
+	{0, 1, 1, 1, 0},
+	{0, 0, 1, 0, 0}
+};
 char character[2][16][16] =
 {
 	{
@@ -141,10 +148,11 @@ struct Obj
 	char (*shape)[16][16];
 };
 #pragma endregion
+
 #pragma region Main
 int main()
 {
-
+	srand((unsigned)time(NULL));
 	
 	InitBuffer();
 
@@ -254,13 +262,31 @@ void PrintOBJ()
 	player.shape = character;
 	player.HP = 10;
 	
-
-	Obj enemy;
-	enemy.x = 125;
-	enemy.y = 20;
-	enemy.color = WHITE;
-	enemy.shape = Enemy;
-	enemy.HP = 5;
+	const int numEnemies = 10;
+	Obj enemies[numEnemies];
+	for (int i = 0; i < numEnemies; i++)
+	{
+		enemies[i].HP = 5;
+		enemies[i].color = WHITE;
+		enemies[i].shape = Enemy;
+		enemies[i].dir = LEFT;
+		int valid = 0;
+		while (!valid) 
+		{
+			int newX = rand() % 235;       
+			int newY = (rand() % 163) + 2;   
+			int dx = newX - player.x;
+			int dy = newY - player.y;
+			double d = sqrt(dx * dx + dy * dy);
+			if (d >= 20) 
+			{  
+				enemies[i].x = newX;
+				enemies[i].y = newY;
+				valid = 1;
+			}
+		}
+	}
+	
 
 
 	while (true)
@@ -297,7 +323,7 @@ void PrintOBJ()
 		{
 			player.x -= speed;
 		}
-		if (player.y < 0)
+		if (player.y < 2)
 		{
 			player.y += speed;
 		}
@@ -308,6 +334,21 @@ void PrintOBJ()
 
 		ClearBuffer();
 
+		for (int i = 0; i < player.HP; i++) 
+		{
+			int iconStartX = i * (5 + 1);  
+
+			for (int r = 0; r < 5; r++) 
+			{
+				for (int c = 0; c < 5; c++) 
+				{
+					if (HPICON[r][c] == 1) 
+					{
+						WriteBuffer(iconStartX + c, r, "бс", RED);
+					}
+				}
+			}
+		}
 
 		for (int y = 0; y < 16; y++)
 		{
@@ -337,66 +378,120 @@ void PrintOBJ()
 
 			}
 		}
-		if (player.x < enemy.x +16 && player.x + 16 > enemy.x && player.y < enemy.y +16 && player.y + 16 > enemy.y)
+
+		for (int i = 0; i < numEnemies; i++) 
 		{
-			double playerCenterX = player.x + 8;
-			double playerCenterY = player.y + 8;
-			double enemyCenterX = enemy.x + 8;
-			double enemyCenterY = enemy.y + 8;
-
-			double dx = playerCenterX - enemyCenterX;
-			double dy = playerCenterY - enemyCenterY;
-			double distance = sqrt(dx * dx + dy * dy);
-
-			player.x += (int)((dx / distance) * 10);
-			player.y += (int)((dy / distance) * 10);
-
-			enemy.x -= (int)((dx / distance) * 10);
-			enemy.y -= (int)((dy / distance) * 10);
-		}
-
-		for (int y = 0; y < 16; y++)
-		{
-			for (int x = 0; x < 16; x++)
+			if (enemies[i].HP > 0) 
 			{
-
-				switch (Enemy[0][y][x])
+				double enemySpeed = 2.0;
+				double exCenter = enemies[i].x + 8;
+				double eyCenter = enemies[i].y + 8;
+				double pxCenter = player.x + 8;
+				double pyCenter = player.y + 8;
+				double dx = pxCenter - exCenter;
+				double dy = pyCenter - eyCenter;
+				double dist = sqrt(dx * dx + dy * dy);
+				if (dist != 0) 
 				{
-				case 3:
-					WriteBuffer(enemy.x + x, enemy.y + y, "бс", LIGHTBLUE);
-					break;
-				case 4:
-					WriteBuffer(enemy.x + x, enemy.y + y, "бс", RED);
-					break;
-				case 5:
-					WriteBuffer(enemy.x + x, enemy.y + y, "бс", RED);
-					break;
-				default:
-					break;
+					enemies[i].x += (int)((dx / dist) * enemySpeed);
+					enemies[i].y += (int)((dy / dist) * enemySpeed);
 				}
+			}
+			if (enemies[i].HP > 0 &&
+				player.x < enemies[i].x + 16 && player.x + 16 > enemies[i].x &&
+				player.y < enemies[i].y + 16 && player.y + 16 > enemies[i].y) 
+			{
+				double playerCenterX = player.x + 8;
+				double playerCenterY = player.y + 8;
+				double enemyCenterX = enemies[i].x + 8;
+				double enemyCenterY = enemies[i].y + 8;
+				double dx = playerCenterX - enemyCenterX;
+				double dy = playerCenterY - enemyCenterY;
+				double distance = sqrt(dx * dx + dy * dy);
+				if (distance == 0) 
+				{
+					player.x += 10;
+				}
+				else 
+				{
+					player.x += (int)((dx / distance) * 10);
+					player.y += (int)((dy / distance) * 10);
+					enemies[i].x -= (int)((dx / distance) * 10);
+					enemies[i].y -= (int)((dy / distance) * 10);
+				}
+				
+				player.HP -= 1;
+				enemies[i].HP -= 1;
+				if (player.HP <= 0) 
+				{
+					break; 
+				}
+			}
 
+			if (enemies[i].HP <= 0) {
+				Sleep(50); 
+				enemies[i].HP = 5;
+				
+				int valid = 0;
+				while (!valid) {
+					int newX = rand() % 235;        
+					int newY = (rand() % 163) + 2;    
+					int dx = newX - player.x;
+					int dy = newY - player.y;
+					double d = sqrt(dx * dx + dy * dy);
+					if (d >= 20) {
+						enemies[i].x = newX;
+						enemies[i].y = newY;
+						valid = 1;
+					}
+				}
+			}
+		
+			if (enemies[i].HP > 0) 
+			{
+				for (int y = 0; y < 16; y++) 
+				{
+					for (int x = 0; x < 16; x++) 
+					{
+						switch (Enemy[0][y][x]) 
+						{
+						case 3:
+							WriteBuffer(enemies[i].x + x, enemies[i].y + y, "бс", LIGHTBLUE);
+							break;
+						case 4:
+							WriteBuffer(enemies[i].x + x, enemies[i].y + y, "бс", RED);
+							break;
+						case 5:
+							WriteBuffer(enemies[i].x + x, enemies[i].y + y, "бс", RED);
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+		
+			if (enemies[i].x < 0) 
+			{ 
+				enemies[i].x += speed; 
+			}
+			if (enemies[i].x > 234) 
+			{ 
+				enemies[i].x -= speed; 
+			}
+			if (enemies[i].y < 2) 
+			{ 
+				enemies[i].y += speed;
+			}
+			if (enemies[i].y > 164) 
+			{ 
+				enemies[i].y -= speed;
 			}
 		}
 
-		if (enemy.x < 0)
-		{
-			enemy.x += speed;
-		}
-		if (enemy.x > 234)
-		{
-			enemy.x -= speed;
-		}
-		if (enemy.y < 0)
-		{
-			enemy.y += speed;
-		}
-		if (enemy.y > 164)
-		{
-			enemy.y -= speed;
-		}
 		FlipBuffer();
 
-		Sleep(50);
+		Sleep(10);
 	}
 
 }
