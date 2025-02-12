@@ -7,6 +7,7 @@
 #pragma region define
 #define speed 3
 #define BufferWidth 500
+#define BufferHeight 180
 #pragma endregion
 
 #pragma region DoubleBuffer
@@ -271,7 +272,7 @@ void PrintOBJ()
 		{
 			player.x -= speed;
 			player.dir = LEFT;
-
+		
 		}
 		if (GetAsyncKeyState(VK_RIGHT))
 		{
@@ -287,6 +288,22 @@ void PrintOBJ()
 		if (GetAsyncKeyState(VK_DOWN))
 		{
 			player.y += speed;
+		}
+		if (player.x < 0)
+		{
+			player.x += speed;
+		}
+		if (player.x > 234)
+		{
+			player.x -= speed;
+		}
+		if (player.y < 0)
+		{
+			player.y += speed;
+		}
+		if (player.y > 164)
+		{
+			player.y -= speed;
 		}
 
 		ClearBuffer();
@@ -337,6 +354,7 @@ void PrintOBJ()
 			enemy.x -= (int)((dx / distance) * 10);
 			enemy.y -= (int)((dy / distance) * 10);
 		}
+
 		for (int y = 0; y < 16; y++)
 		{
 			for (int x = 0; x < 16; x++)
@@ -358,6 +376,23 @@ void PrintOBJ()
 				}
 
 			}
+		}
+
+		if (enemy.x < 0)
+		{
+			enemy.x += speed;
+		}
+		if (enemy.x > 234)
+		{
+			enemy.x -= speed;
+		}
+		if (enemy.y < 0)
+		{
+			enemy.y += speed;
+		}
+		if (enemy.y > 164)
+		{
+			enemy.y -= speed;
 		}
 		FlipBuffer();
 
