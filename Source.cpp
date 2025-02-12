@@ -291,9 +291,6 @@ void PrintOBJ()
 
 		ClearBuffer();
 
-		char hpText[50];
-		sprintf_s(hpText, "플레이어 HP: %d", player.HP);
-		WriteBuffer(20, 20, hpText, WHITE);
 
 		for (int y = 0; y < 16; y++)
 		{
