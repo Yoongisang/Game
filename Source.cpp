@@ -568,7 +568,7 @@ void PrintOBJ()
 				enemies[i].HP -= 1;
 				if (player.HP <= 0) 
 				{
-					break; 
+					exit(0);
 				}
 			}
 
