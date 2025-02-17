@@ -8,6 +8,8 @@
 #define speed 3
 #define BufferWidth 500
 #define BufferHeight 180
+#define MAX_BULLETS 10
+#define BULLET_SPEED 5
 #pragma endregion
 
 #pragma region DoubleBuffer
@@ -60,6 +62,15 @@ void setColor(int color);
 #pragma region OBJ
 
 void PrintOBJ();
+
+char Bullets[5][5] =
+{
+	{1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1},
+	{1, 1, 1, 1, 1}
+};
 char HPICON[5][5] =
 {
 	{0, 1, 0, 1, 0},
@@ -147,6 +158,16 @@ struct Obj
 	Color color;
 	char (*shape)[16][16];
 };
+#pragma endregion
+
+#pragma region Bullet
+typedef struct {
+	int x;
+	int y;
+	int dx;
+	int dy;
+	int active;
+} Bullet;
 #pragma endregion
 
 #pragma region Main
@@ -264,6 +285,14 @@ void PrintOBJ()
 	
 	const int numEnemies = 10;
 	Obj enemies[numEnemies];
+ 
+
+	Bullet bullets[MAX_BULLETS] = { 0 };
+	for (int i = 0; i < MAX_BULLETS; i++)
+	{
+		bullets[i].active = 0;
+	}
+
 	for (int i = 0; i < numEnemies; i++)
 	{
 		enemies[i].HP = 5;
@@ -294,24 +323,24 @@ void PrintOBJ()
 
 
 
-		if (GetAsyncKeyState(VK_LEFT))
+		if (GetAsyncKeyState('A') & 0x8000)
 		{
 			player.x -= speed;
 			player.dir = LEFT;
 		
 		}
-		if (GetAsyncKeyState(VK_RIGHT))
+		if (GetAsyncKeyState('D') & 0x8000)
 		{
 			player.x += speed;
 			player.dir = RIGHT;
 
 		}
-		if (GetAsyncKeyState(VK_UP))
+		if (GetAsyncKeyState('W') & 0x8000)
 		{
 
 			player.y -= speed;
 		}
-		if (GetAsyncKeyState(VK_DOWN))
+		if (GetAsyncKeyState('S') & 0x8000)
 		{
 			player.y += speed;
 		}
@@ -331,7 +360,80 @@ void PrintOBJ()
 		{
 			player.y -= speed;
 		}
+		if (GetAsyncKeyState(VK_LEFT) & 0x8000) 
+		{
+			
+			for (int i = 0; i < MAX_BULLETS; i++) 
+			{
+				if (!bullets[i].active) 
+				{
+					bullets[i].active = 1;
+					bullets[i].x = player.x + 8 - 2; 
+					bullets[i].y = player.y + 8 - 2;
+					bullets[i].dx = -BULLET_SPEED;
+					bullets[i].dy = 0;
+					break;
+				}
+			}
+		}
 
+		if (GetAsyncKeyState(VK_RIGHT) & 0x8000) 
+		{
+			for (int i = 0; i < MAX_BULLETS; i++) 
+			{
+				if (!bullets[i].active) 
+				{
+					bullets[i].active = 1;
+					bullets[i].x = player.x + 8 - 2;
+					bullets[i].y = player.y + 8 - 2;
+					bullets[i].dx = BULLET_SPEED;
+					bullets[i].dy = 0;
+					break;
+				}
+			}
+		}
+		if (GetAsyncKeyState(VK_UP) & 0x8000) 
+		{
+			for (int i = 0; i < MAX_BULLETS; i++) 
+			{
+				if (!bullets[i].active) 
+				{
+					bullets[i].active = 1;
+					bullets[i].x = player.x + 8 - 2;
+					bullets[i].y = player.y + 8 - 2;
+					bullets[i].dx = 0;
+					bullets[i].dy = -BULLET_SPEED;
+					break;
+				}
+			}
+		}
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000) 
+		{
+			for (int i = 0; i < MAX_BULLETS; i++) 
+			{
+				if (!bullets[i].active) 
+				{
+					bullets[i].active = 1;
+					bullets[i].x = player.x + 8 - 2;
+					bullets[i].y = player.y + 8 - 2;
+					bullets[i].dx = 0;
+					bullets[i].dy = BULLET_SPEED;
+					break;
+				}
+			}
+		}
+
+		for (int i = 0; i < MAX_BULLETS; i++) 
+		{
+			if (bullets[i].active) 
+			{
+				bullets[i].x += bullets[i].dx;
+				bullets[i].y += bullets[i].dy;
+				
+				if (bullets[i].x < 0 || bullets[i].x > 234 || bullets[i].y < 0 || bullets[i].y > 164)
+					bullets[i].active = 0;
+			}
+		}
 		ClearBuffer();
 
 		for (int i = 0; i < player.HP; i++) 
@@ -345,6 +447,24 @@ void PrintOBJ()
 					if (HPICON[r][c] == 1) 
 					{
 						WriteBuffer(iconStartX + c, r, "бс", RED);
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < MAX_BULLETS; i++) 
+		{
+			if (bullets[i].active) 
+			{
+				
+				for (int r = 0; r < 5; r++) 
+				{
+					for (int c = 0; c < 5; c++) 
+					{
+						if (Bullets[r][c] == 1) 
+						{
+							WriteBuffer(bullets[i].x + c, bullets[i].y + r, "бс", YELLOW);
+						}
 					}
 				}
 			}
@@ -446,6 +566,7 @@ void PrintOBJ()
 					}
 				}
 			}
+
 		
 			if (enemies[i].HP > 0) 
 			{
