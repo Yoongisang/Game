@@ -161,7 +161,8 @@ struct Obj
 #pragma endregion
 
 #pragma region Bullet
-typedef struct {
+typedef struct 
+{
 	int x;
 	int y;
 	int dx;
