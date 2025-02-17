@@ -434,6 +434,29 @@ void PrintOBJ()
 					bullets[i].active = 0;
 			}
 		}
+
+		for (int i = 0; i < MAX_BULLETS; i++) 
+		{
+			if (bullets[i].active) {
+				for (int j = 0; j < numEnemies; j++) 
+				{
+					if (enemies[j].HP > 0) 
+					{
+						if (bullets[i].x < enemies[j].x + 16 &&
+							bullets[i].x + 5 > enemies[j].x &&
+							bullets[i].y < enemies[j].y + 16 &&
+							bullets[i].y + 5 > enemies[j].y) 
+						{
+
+							enemies[j].HP -= 1;
+							bullets[i].active = 0;
+							break;
+						}
+					}
+				}
+			}
+		}
+
 		ClearBuffer();
 
 		for (int i = 0; i < player.HP; i++) 
